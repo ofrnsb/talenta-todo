@@ -1,0 +1,23 @@
+<!-- src/app/components/task-kanban/task-kanban.component.html -->
+<div class="kanban-board">
+  <div class="kanban-column" *ngFor="let status of statuses" cdkDropList [cdkDropListData]="tasksByStatus[status]"
+       (cdkDropListDropped)="drop($event, status)">
+    <h3>{{status}}</h3>
+    <div class="kanban-card" *ngFor="let task of tasksByStatus[status]" cdkDrag>
+      <div class="card-content">
+        <div class="title">{{task.description}}</div>
+        <div class="meta">
+          <span class="priority">{{task.priority}}</span> | 
+          <span class="type">{{task.type}}</span>
+        </div>
+        <div class="sp">SP: {{task.estimatedSP}}</div>
+        <div class="devs">Dev: {{task.developers.join(', ')}}</div>
+      </div>
+      <div class="card-actions">
+        <button mat-icon-button (click)="openEdit(task)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
