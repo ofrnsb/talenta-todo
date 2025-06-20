@@ -1,65 +1,62 @@
-/* src/styles.scss */
+
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: var(--bg-panel);
+  border-radius: 12px !important;
+}
+
+.mat-mdc-tab-group {
+  --mat-tab-header-background-color: var(--bg-panel);
+  --mdc-tab-indicator-active-indicator-color: var(--color-accent);
+}
+
+.mat-mdc-tab {
+  --mdc-tab-text-label-text-color: var(--color-muted);
+  --mdc-tab-text-label-text-color-active: var(--color-accent);
+}
+
+
+:root {
+  --bg-main: #0f1419;
+  --bg-panel: #1a1f2e;
+  --bg-table-row: #1a1f2e;
+  --bg-table-header: #151a26;
+  --bg-input: #242937;
+  --color-text: #ffffff;
+  --color-muted: #8a94b9;
+  --color-accent: #3a7afe;
+  --border-color: #2e3856;
+}
+
+* {
+  box-sizing: border-box;
+}
 
 html, body { 
   height: 100%; 
   margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  font-family: 'Inter', 'Roboto', "Helvetica Neue", sans-serif;
+  background: var(--bg-main);
+  color: var(--color-text);
 }
 
-.kanban-board {
-  display: flex;
-  gap: 16px;
-  padding: 16px;
-  overflow-x: auto;
-  height: calc(100vh - 64px);
 
-  .kanban-column {
-    min-width: 300px;
-    background: #f5f5f5;
-    border-radius: 4px;
-    padding: 16px;
-
-    h3 {
-      margin-top: 0;
-    }
-
-    .kanban-card {
-      background: white;
-      border-radius: 4px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-
-      .card-content {
-        .title {
-          font-weight: bold;
-        }
-        .meta {
-          color: #666;
-          font-size: 0.9em;
-        }
-        .sp, .devs {
-          font-size: 0.9em;
-        }
-      }
-
-      .card-actions {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 8px;
-      }
-    }
-  }
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.container {
-  padding: 16px;
+::-webkit-scrollbar-track {
+  background: var(--bg-input);
+  border-radius: 4px;
+}
 
-  .filters {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
-    align-items: center;
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 4px;
+  
+  &:hover {
+    background: var(--color-text);
   }
 }

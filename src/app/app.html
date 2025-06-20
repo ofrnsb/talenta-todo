@@ -1,9 +1,72 @@
-<!-- src/app/app.component.html -->
-<mat-tab-group>
-  <mat-tab label="Table View">
-    <app-task-table></app-task-table>
-  </mat-tab>
-  <mat-tab label="Kanban View">
-    <app-task-kanban></app-task-kanban>
-  </mat-tab>
-</mat-tab-group>
+<div class="app-container">
+  <!-- Main Toolbar -->
+  <div class="main-toolbar">
+    <div class="toolbar-left">
+      <div class="tabs">
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'table'" 
+          (click)="setActiveTab('table')">
+          Main Table
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'kanban'" 
+          (click)="setActiveTab('kanban')">
+          Kanban
+        </button>
+      </div>
+    </div>
+    
+    <div class="toolbar-center">
+      <button mat-raised-button color="primary" (click)="openNewTask()" class="new-task-btn">
+        New task
+      </button>
+      
+      <div class="search-container">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" placeholder="Search" [(ngModel)]="search" class="search-input">
+      </div>
+      
+      <div class="person-container">
+        <mat-icon class="person-icon">person</mat-icon>
+        <select [(ngModel)]="developerFilter" class="person-select">
+          <option value="">All</option>
+          <option *ngFor="let dev of getDeveloperList()" [value]="dev">{{dev}}</option>
+        </select>
+      </div>
+      
+      <button class="sort-button">
+        <mat-icon>sort</mat-icon>
+      </button>
+    </div>
+    
+    <div class="toolbar-right">
+      <!-- Status Percentage Bar -->
+      <div class="status-bar" *ngIf="statusPercents.length">
+        <div 
+          *ngFor="let stat of statusPercents" 
+          class="bar-segment" 
+          [style.width.%]="stat.percent"
+          [style.background-color]="stat.color"
+          [title]="stat.label + ': ' + stat.percent.toFixed(1) + '%'">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <app-task-table 
+      *ngIf="activeTab === 'table'"
+      [searchTerm]="search"
+      [developerFilter]="developerFilter">
+    </app-task-table>
+    
+    <app-task-kanban 
+      *ngIf="activeTab === 'kanban'"
+      [searchTerm]="search"
+      [developerFilter]="developerFilter">
+    </app-task-kanban>
+  </div>
+</div>

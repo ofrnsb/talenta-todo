@@ -1,4 +1,3 @@
-// src/app/services/task.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
@@ -36,5 +35,13 @@ export class TaskService {
 
   deleteTask(id: string) {
     this.tasks$.next(this.tasks$.value.filter(t => t.id !== id));
+  }
+
+  getDeveloperList(): string[] {
+    const developers = new Set<string>();
+    this.tasks$.value.forEach(task => {
+      task.developers.forEach(dev => developers.add(dev));
+    });
+    return Array.from(developers);
   }
 }

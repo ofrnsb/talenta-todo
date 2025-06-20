@@ -1,85 +1,183 @@
-<!-- src/app/components/task-table/task-table.component.html -->
-<div class="container">
-  <div class="filters">
-    <button mat-raised-button color="primary" (click)="openEdit(null)">New Task</button>
-
-    <mat-form-field>
-      <mat-label>Search</mat-label>
-      <input matInput [(ngModel)]="search" (input)="applyFilters()">
-    </mat-form-field>
-
-    <mat-form-field>
-      <mat-label>Person</mat-label>
-      <mat-select [(ngModel)]="developerFilter" (selectionChange)="applyFilters()">
-        <mat-option value="">All</mat-option>
-        <mat-option *ngFor="let dev of tasks | developerList" [value]="dev">{{dev}}</mat-option>
-      </mat-select>
-    </mat-form-field>
+<div class="table-container">
+  <div class="table-toolbar">
+    <button mat-raised-button color="primary" (click)="openEdit(null)" class="new-task-btn">
+      New task
+    </button>
+    
+    <div class="toolbar-controls">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput placeholder="Search" [(ngModel)]="searchTerm" (input)="applyFilters()">
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="person-field">
+        <mat-icon matPrefix>person</mat-icon>
+        <mat-select placeholder="Person" [(ngModel)]="developerFilter" (selectionChange)="applyFilters()">
+          <mat-option value="">All</mat-option>
+          <mat-option *ngFor="let dev of getDeveloperList()" [value]="dev">
+            {{dev}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <button mat-icon-button class="sort-btn">
+        <mat-icon>sort</mat-icon>
+      </button>
+    </div>
   </div>
 
-  <table mat-table [dataSource]="filteredTasks" matSort>
-    <!-- Kolom Description -->
-    <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef (click)="onSort('description')">Task</th>
-      <td mat-cell *matCellDef="let task">{{task.description}}</td>
-    </ng-container>
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="filteredTasks" class="main-table">
+      
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef (click)="onSort('description')" class="header-cell sortable">
+          Task
+          <mat-icon *ngIf="sortColumn === 'description'" class="sort-icon">
+            {{sortDirection === 'asc' ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}}
+          </mat-icon>
+        </th>
+        <td mat-cell *matCellDef="let task" class="data-cell task-cell">
+          {{task.description}}
+        </td>
+      </ng-container>
 
-    <!-- Kolom Developers -->
-    <ng-container matColumnDef="developers">
-      <th mat-header-cell *matHeaderCellDef (click)="onSort('developers')">Developer</th>
-      <td mat-cell *matCellDef="let task">{{task.developers.join(', ')}}</td>
-    </ng-container>
+      <ng-container matColumnDef="developers">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">
+          Developer
+        </th>
+        <td mat-cell *matCellDef="let task" class="data-cell developer-cell">
+          <div class="developers-list">
+            <div 
+              *ngFor="let dev of task.developers; let i = index" 
+              class="avatar"
+              [title]="dev">
+              {{getDeveloperInitials(dev)}}
+            </div>
+          </div>
+        </td>
+      </ng-container>
 
-    <!-- Kolom Status -->
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef (click)="onSort('status')">Status</th>
-      <td mat-cell *matCellDef="let task">{{task.status}}</td>
-    </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">
+          Status
+        </th>
+        <td mat-cell *matCellDef="let task" class="data-cell">
+          <span 
+            class="status-pill" 
+            [style.background-color]="getStatusColor(task.status)">
+            {{task.status}}
+          </span>
+        </td>
+      </ng-container>
 
-    <!-- Kolom Priority -->
-    <ng-container matColumnDef="priority">
-      <th mat-header-cell *matHeaderCellDef (click)="onSort('priority')">Priority</th>
-      <td mat-cell *matCellDef="let task">{{task.priority}}</td>
-    </ng-container>
+      <ng-container matColumnDef="priority">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">
+          Priority
+        </th>
+        <td mat-cell *matCellDef="let task" class="data-cell">
+          <span 
+            class="priority-pill" 
+            [style.background-color]="getPriorityColor(task.priority)">
+            {{task.priority}}
+          </span>
+        </td>
+      </ng-container>
 
-    <!-- Kolom Type -->
-    <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef (click)="onSort('type')">Type</th>
-      <td mat-cell *matCellDef="let task">{{task.type}}</td>
-    </ng-container>
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">
+          Type
+        </th>
+        <td mat-cell *matCellDef="let task" class="data-cell">
+          <span 
+            class="type-pill" 
+            [style.background-color]="getTypeColor(task.type)">
+            {{task.type}}
+          </span>
+        </td>
+      </ng-container>
 
-    <!-- Kolom Date -->
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef (click)="onSort('date')">Date</th>
-      <td mat-cell *matCellDef="let task">{{task.date | date: 'dd MMM, yyyy'}}</td>
-    </ng-container>
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">
+          Date
+        </th>
+        <td mat-cell *matCellDef="let task" class="data-cell">
+          {{task.date | date: 'dd MMM, yyyy'}}
+        </td>
+      </ng-container>
 
-    <!-- Kolom Estimated SP -->
-    <ng-container matColumnDef="estimatedSP">
-      <th mat-header-cell *matHeaderCellDef (click)="onSort('estimatedSP')">Estimated SP</th>
-      <td mat-cell *matCellDef="let task">{{task.estimatedSP}}</td>
-    </ng-container>
+      <ng-container matColumnDef="estimatedSP">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">
+          Estimated SP
+        </th>
+        <td mat-cell *matCellDef="let task" class="data-cell sp-cell">
+          {{task.estimatedSP}} SP
+        </td>
+      </ng-container>
 
-    <!-- Kolom Actual SP -->
-    <ng-container matColumnDef="actualSP">
-      <th mat-header-cell *matHeaderCellDef (click)="onSort('actualSP')">Actual SP</th>
-      <td mat-cell *matCellDef="let task">{{task.actualSP}}</td>
-    </ng-container>
+      <ng-container matColumnDef="actualSP">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">
+          Actual SP
+        </th>
+        <td mat-cell *matCellDef="let task" class="data-cell sp-cell">
+          {{task.actualSP}} SP
+        </td>
+      </ng-container>
 
-    <!-- Kolom Actions -->
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let task">
-        <button mat-icon-button (click)="openEdit(task)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button (click)="deleteTask(task.id)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="header-cell actions-header"></th>
+        <td mat-cell *matCellDef="let task" class="data-cell actions-cell">
+          <button mat-icon-button (click)="openEdit(task)" class="action-btn edit-btn">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="deleteTask(task.id)" class="action-btn delete-btn">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="data-row"></tr>
+    </table>
+  </div>
+
+  <div class="percentage-section">
+    <div class="percentage-bar">
+      <span class="bar-label">Status</span>
+      <div class="bar-container">
+        <div 
+          *ngFor="let stat of statusPercents" 
+          class="bar-segment" 
+          [style.width.%]="stat.percent"
+          [style.background-color]="stat.color"
+          [title]="stat.label + ': ' + stat.percent.toFixed(1) + '%'">
+        </div>
+      </div>
+    </div>
+    
+    <div class="percentage-bar">
+      <span class="bar-label">Priority</span>
+      <div class="bar-container">
+        <div 
+          *ngFor="let priority of priorityPercents" 
+          class="bar-segment" 
+          [style.width.%]="priority.percent"
+          [style.background-color]="priority.color"
+          [title]="priority.label + ': ' + priority.percent.toFixed(1) + '%'">
+        </div>
+      </div>
+    </div>
+    
+    <div class="percentage-bar">
+      <span class="bar-label">Type</span>
+      <div class="bar-container">
+        <div 
+          *ngFor="let type of typePercents" 
+          class="bar-segment" 
+          [style.width.%]="type.percent"
+          [style.background-color]="type.color"
+          [title]="type.label + ': ' + type.percent.toFixed(1) + '%'">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

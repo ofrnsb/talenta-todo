@@ -1,54 +1,108 @@
-<!-- src/app/components/task-form/task-form.component.html -->
-<form (ngSubmit)="save()">
-  <mat-form-field>
-    <mat-label>Task</mat-label>
-    <input matInput [(ngModel)]="task.description" name="description" required>
-  </mat-form-field>
+<div class="task-form">
+  <div class="form-header">
+    <h2>{{isEditMode ? 'Edit Task' : 'New Task'}}</h2>
+    <button mat-icon-button (click)="close()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
 
-  <mat-form-field>
-    <mat-label>Developers</mat-label>
-    <mat-select multiple [(ngModel)]="task.developers" name="developers">
-      <mat-option *ngFor="let dev of ['Dev 1', 'Dev 2']" [value]="dev">{{dev}}</mat-option>
-    </mat-select>
-  </mat-form-field>
+  <form (ngSubmit)="save()" class="form-content">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Task Description</mat-label>
+        <input 
+          matInput 
+          [(ngModel)]="task.description" 
+          name="description" 
+          required
+          placeholder="Enter task description">
+      </mat-form-field>
+    </div>
 
-  <mat-form-field>
-    <mat-label>Status</mat-label>
-    <mat-select [(ngModel)]="task.status" name="status">
-      <mat-option *ngFor="let status of statuses" [value]="status">{{status}}</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Developers</mat-label>
+        <mat-select multiple [(ngModel)]="task.developers" name="developers">
+          <mat-option *ngFor="let dev of availableDevelopers" [value]="dev">
+            {{dev}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
 
-  <mat-form-field>
-    <mat-label>Priority</mat-label>
-    <mat-select [(ngModel)]="task.priority" name="priority">
-      <mat-option *ngFor="let priority of priorities" [value]="priority">{{priority}}</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <div class="form-row two-columns">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="task.status" name="status">
+          <mat-option *ngFor="let status of statuses" [value]="status">
+            {{status}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Type</mat-label>
-    <mat-select [(ngModel)]="task.type" name="type">
-      <mat-option *ngFor="let type of types" [value]="type">{{type}}</mat-option>
-    </mat-select>
-  </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select [(ngModel)]="task.priority" name="priority">
+          <mat-option *ngFor="let priority of priorities" [value]="priority">
+            {{priority}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
 
-  <mat-form-field>
-    <mat-label>Date</mat-label>
-    <input matInput [matDatepicker]="picker" [(ngModel)]="task.date" name="date">
-    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
+    <div class="form-row two-columns">
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select [(ngModel)]="task.type" name="type">
+          <mat-option *ngFor="let type of types" [value]="type">
+            {{type}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Estimated SP</mat-label>
-    <input matInput type="number" [(ngModel)]="task.estimatedSP" name="estimatedSP">
-  </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Date</mat-label>
+        <input 
+          matInput 
+          [matDatepicker]="picker" 
+          [(ngModel)]="task.date" 
+          name="date">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
 
-  <mat-form-field>
-    <mat-label>Actual SP</mat-label>
-    <input matInput type="number" [(ngModel)]="task.actualSP" name="actualSP">
-  </mat-form-field>
+    <div class="form-row two-columns">
+      <mat-form-field appearance="outline">
+        <mat-label>Estimated SP</mat-label>
+        <input 
+          matInput 
+          type="number" 
+          [(ngModel)]="task.estimatedSP" 
+          name="estimatedSP"
+          min="0"
+          step="1">
+      </mat-form-field>
 
-  <button mat-raised-button color="primary" type="submit">Save</button>
-</form>
+      <mat-form-field appearance="outline">
+        <mat-label>Actual SP</mat-label>
+        <input 
+          matInput 
+          type="number" 
+          [(ngModel)]="task.actualSP" 
+          name="actualSP"
+          min="0"
+          step="1">
+      </mat-form-field>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" mat-button (click)="close()" class="cancel-btn">
+        Cancel
+      </button>
+      <button type="submit" mat-raised-button color="primary" class="save-btn">
+        {{isEditMode ? 'Update' : 'Create'}} Task
+      </button>
+    </div>
+  </form>
+</div>

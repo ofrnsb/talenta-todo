@@ -1,7 +1,9 @@
-// src/app/components/task-table/task-table.component.ts
+
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,8 +12,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { Task } from '../../models/task.models';
-import { DeveloperListPipe } from '../../pipes/developer-list.pipe';
+
+import { PercentageData, Task } from '../../models/task.models';
+import { ColorService } from '../../services/color.service';
+import { PercentageService } from '../../services/percentage.service';
 import { TaskService } from '../../services/task.service';
 import { TaskFormComponent } from '../task-form/task-form.component';
 
@@ -22,24 +26,25 @@ import { TaskFormComponent } from '../task-form/task-form.component';
     CommonModule,
     FormsModule,
     MatTableModule,
+    MatButtonModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatOptionModule,
-    MatButtonModule,
-    MatIconModule,
-    DeveloperListPipe
+    MatOptionModule
   ],
   templateUrl: './task-table.component.html',
   styleUrls: ['./task-table.component.scss']
 })
-export class TaskTableComponent implements OnInit {
+export class TaskTableComponent implements OnInit, OnChanges {
+  @Input() searchTerm = '';
+  @Input() developerFilter = '';
+  
   tasks: Task[] = [];
   filteredTasks: Task[] = [];
-  search = '';
-  developerFilter = '';
   sortColumn = '';
   sortDirection: 'asc' | 'desc' = 'asc';
+  
   displayedColumns: string[] = [
     'description', 
     'developers', 
@@ -52,21 +57,38 @@ export class TaskTableComponent implements OnInit {
     'actions'
   ];
 
+  statusPercents: PercentageData[] = [];
+  priorityPercents: PercentageData[] = [];
+  typePercents: PercentageData[] = [];
+
   constructor(
     private taskService: TaskService,
+    private colorService: ColorService,
+    private percentageService: PercentageService,
     private dialog: MatDialog
   ) {}
 
   ngOnInit() {
     this.taskService.getTasks().subscribe(tasks => {
       this.tasks = tasks;
+      this.updatePercentages();
       this.applyFilters();
     });
   }
 
+  ngOnChanges() {
+    this.applyFilters();
+  }
+
+  updatePercentages() {
+    this.statusPercents = this.percentageService.getStatusPercents(this.tasks);
+    this.priorityPercents = this.percentageService.getPriorityPercents(this.tasks);
+    this.typePercents = this.percentageService.getTypePercents(this.tasks);
+  }
+
   applyFilters() {
     this.filteredTasks = this.tasks
-      .filter(t => t.description.toLowerCase().includes(this.search.toLowerCase()))
+      .filter(t => t.description.toLowerCase().includes(this.searchTerm.toLowerCase()))
       .filter(t => this.developerFilter ? t.developers.includes(this.developerFilter) : true);
 
     if (this.sortColumn) {
@@ -91,12 +113,37 @@ export class TaskTableComponent implements OnInit {
   }
 
   openEdit(task: Task | null) {
-    const dialogRef = this.dialog.open(TaskFormComponent, { data: task });
-    dialogRef.afterClosed().subscribe(() => this.applyFilters());
+    const dialogRef = this.dialog.open(TaskFormComponent, { 
+      data: task,
+      width: '600px'
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this.applyFilters();
+    });
   }
 
   deleteTask(id: string) {
     this.taskService.deleteTask(id);
-    this.applyFilters();
+  }
+
+  
+  getDeveloperList(): string[] {
+    return this.taskService.getDeveloperList();
+  }
+
+  getStatusColor(status: string): string {
+    return this.colorService.getStatusColor(status);
+  }
+
+  getPriorityColor(priority: string): string {
+    return this.colorService.getPriorityColor(priority);
+  }
+
+  getTypeColor(type: string): string {
+    return this.colorService.getTypeColor(type);
+  }
+
+  getDeveloperInitials(name: string): string {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 }

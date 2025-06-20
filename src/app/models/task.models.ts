@@ -20,3 +20,9 @@ export interface Task {
   estimatedSP: number;
   actualSP: number;
 }
+
+export interface PercentageData {
+  label: string;
+  color: string;
+  percent: number;
+}

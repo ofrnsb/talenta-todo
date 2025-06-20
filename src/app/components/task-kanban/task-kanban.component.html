@@ -1,21 +1,79 @@
-<!-- src/app/components/task-kanban/task-kanban.component.html -->
-<div class="kanban-board">
-  <div class="kanban-column" *ngFor="let status of statuses" cdkDropList [cdkDropListData]="tasksByStatus[status]"
-       (cdkDropListDropped)="drop($event, status)">
-    <h3>{{status}}</h3>
-    <div class="kanban-card" *ngFor="let task of tasksByStatus[status]" cdkDrag>
-      <div class="card-content">
-        <div class="title">{{task.description}}</div>
-        <div class="meta">
-          <span class="priority">{{task.priority}}</span> | 
-          <span class="type">{{task.type}}</span>
-        </div>
-        <div class="sp">SP: {{task.estimatedSP}}</div>
-        <div class="devs">Dev: {{task.developers.join(', ')}}</div>
+<div class="kanban-container">
+  <div class="percentage-section">
+    <div class="percentage-bar">
+      <div 
+        *ngFor="let stat of statusPercents" 
+        class="bar-segment" 
+        [style.width.%]="stat.percent"
+        [style.background-color]="stat.color"
+        [title]="stat.label + ': ' + stat.percent.toFixed(1) + '%'">
       </div>
-      <div class="card-actions">
-        <button mat-icon-button (click)="openEdit(task)">
-          <mat-icon>edit</mat-icon>
+    </div>
+  </div>
+
+  <div class="kanban-board">
+    <div 
+      class="kanban-column" 
+      *ngFor="let status of statuses" 
+      cdkDropList 
+      [cdkDropListData]="tasksByStatus[status] || []"
+      (cdkDropListDropped)="drop($event, status)">
+      
+      <div class="column-header" [style.background-color]="getStatusColor(status)">
+        <span class="status-title">{{status}}</span>
+        <span class="task-count">{{getTaskCountByStatus(status)}}</span>
+      </div>
+      
+      <div class="column-content">
+        <div 
+          class="kanban-card" 
+          *ngFor="let task of (tasksByStatus[status] || [])" 
+          cdkDrag>
+          
+          <div class="card-content">
+            <div class="task-title">{{task.description}}</div>
+            
+            <div class="task-meta">
+              <span 
+                class="pill priority-pill" 
+                [style.background-color]="getPriorityColor(task.priority)">
+                {{task.priority}}
+              </span>
+              <span 
+                class="pill type-pill" 
+                [style.background-color]="getTypeColor(task.type)">
+                {{task.type}}
+              </span>
+            </div>
+            
+            <div class="task-sp">
+              <span class="sp-label">{{task.estimatedSP}} SP</span>
+            </div>
+            
+            <div class="task-footer">
+              <div class="developers">
+                <div 
+                  *ngFor="let dev of task.developers" 
+                  class="avatar"
+                  [title]="dev">
+                  {{getDeveloperInitials(dev)}}
+                </div>
+              </div>
+              
+              <button 
+                mat-icon-button 
+                (click)="openEdit(task)" 
+                class="edit-btn">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <button 
+          class="add-task-btn" 
+          (click)="openEdit(null)">
+          + Add task
         </button>
       </div>
     </div>
